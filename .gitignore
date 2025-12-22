@@ -140,6 +140,7 @@ BACKEND/build/
 BACKEND/config/.env
 BACKEND/config/.env.*
 BACKEND/config/!*.example
+BACKEND/config/config.env
 
 # IDE / Editor
 .vscode/*
