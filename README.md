@@ -123,7 +123,16 @@ Todo-Mern/
 
 ### Frontend (.env)
 
-- `VITE_API_URL` - Backend API URL
+- `VITE_API_BASE_URL` - Backend API URL
+
+#### Environment-Specific Configuration
+
+The application is configured to work both locally and in production:
+
+- For local development: Create a `.env.local` file with `VITE_API_BASE_URL=http://localhost:5000/api/v1`
+- For production deployment: The `.env` file is configured with `VITE_API_BASE_URL=https://todo-mern-qxwq.onrender.com`
+
+This setup allows the frontend to connect to the appropriate backend depending on the environment.
 
 ## Contributing
 
