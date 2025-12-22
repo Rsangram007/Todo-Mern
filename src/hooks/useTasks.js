@@ -1,41 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '../contexts/AuthContext';
 
-// Demo tasks for UI preview (replace with API calls)
-const demoTasks = [
-  {
-    _id: '1',
-    title: 'Complete project documentation',
-    description: 'Write comprehensive README and API documentation for the Todo app',
-    status: 'pending',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    _id: '2',
-    title: 'Review pull requests',
-    description: 'Check and merge pending PRs from team members',
-    status: 'in-progress',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    _id: '3',
-    title: 'Setup CI/CD pipeline',
-    description: 'Configure GitHub Actions for automated testing and deployment',
-    status: 'completed',
-    createdAt: new Date().toISOString(),
-  },
-];
-
 export const useTasks = () => {
-  const { token, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const fetchTasks = useCallback(async () => {
-    if (!isAuthenticated) {
-      // Use demo tasks when not authenticated (for UI preview)
-      setTasks(demoTasks);
+    if (!isAuthenticated || !user) {
+      setTasks([]);
       return;
     }
 
@@ -43,97 +18,69 @@ export const useTasks = () => {
     setError(null);
 
     try {
-      const response = await fetch('/api/tasks', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
-      if (!response.ok) throw new Error('Failed to fetch tasks');
-
-      const data = await response.json();
-      setTasks(data);
+      if (error) throw error;
+      setTasks(data || []);
     } catch (err) {
+      console.error('Error fetching tasks:', err);
       setError(err.message);
-      // Fallback to demo tasks on error
-      setTasks(demoTasks);
+      setTasks([]);
     } finally {
       setIsLoading(false);
     }
-  }, [token, isAuthenticated]);
+  }, [user, isAuthenticated]);
 
   const createTask = async (taskData) => {
-    if (!isAuthenticated) {
-      // Demo mode: add locally
-      const newTask = {
-        _id: Date.now().toString(),
-        ...taskData,
-        createdAt: new Date().toISOString(),
-      };
-      setTasks((prev) => [newTask, ...prev]);
-      return newTask;
-    }
+    if (!user) throw new Error('Must be logged in to create tasks');
 
-    const response = await fetch('/api/tasks', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(taskData),
-    });
+    const { data, error } = await supabase
+      .from('tasks')
+      .insert({
+        title: taskData.title,
+        description: taskData.description || null,
+        status: taskData.status || 'pending',
+        user_id: user.id,
+      })
+      .select()
+      .single();
 
-    if (!response.ok) throw new Error('Failed to create task');
-
-    const newTask = await response.json();
-    setTasks((prev) => [newTask, ...prev]);
-    return newTask;
+    if (error) throw error;
+    setTasks((prev) => [data, ...prev]);
+    return data;
   };
 
   const updateTask = async (id, taskData) => {
-    if (!isAuthenticated) {
-      // Demo mode: update locally
-      setTasks((prev) =>
-        prev.map((task) => (task._id === id ? { ...task, ...taskData } : task))
-      );
-      return;
-    }
+    const { data, error } = await supabase
+      .from('tasks')
+      .update({
+        title: taskData.title,
+        description: taskData.description,
+        status: taskData.status,
+      })
+      .eq('id', id)
+      .select()
+      .single();
 
-    const response = await fetch(`/api/tasks/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(taskData),
-    });
-
-    if (!response.ok) throw new Error('Failed to update task');
-
-    const updatedTask = await response.json();
+    if (error) throw error;
     setTasks((prev) =>
-      prev.map((task) => (task._id === id ? updatedTask : task))
+      prev.map((task) => (task.id === id ? data : task))
     );
-    return updatedTask;
+    return data;
   };
 
   const deleteTask = async (id) => {
-    if (!isAuthenticated) {
-      // Demo mode: delete locally
-      setTasks((prev) => prev.filter((task) => task._id !== id));
-      return;
-    }
+    const { error } = await supabase
+      .from('tasks')
+      .delete()
+      .eq('id', id);
 
-    const response = await fetch(`/api/tasks/${id}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) throw new Error('Failed to delete task');
-
-    setTasks((prev) => prev.filter((task) => task._id !== id));
+    if (error) throw error;
+    setTasks((prev) => prev.filter((task) => task.id !== id));
   };
 
   useEffect(() => {

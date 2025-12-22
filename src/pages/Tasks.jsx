@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, LogOut, CheckCircle, Clock, AlertCircle, ListTodo } from 'lucide-react';
+import { Plus, LogOut, CheckCircle, Clock, AlertCircle, ListTodo, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TaskCard } from '@/components/TaskCard';
 import { TaskModal } from '@/components/TaskModal';
@@ -10,21 +10,35 @@ import { useToast } from '@/hooks/use-toast';
 
 const Tasks = () => {
   const navigate = useNavigate();
-  const { user, logout, isAuthenticated } = useAuth();
-  const { tasks, createTask, updateTask, deleteTask } = useTasks();
+  const { user, logout, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { tasks, isLoading: tasksLoading, createTask, updateTask, deleteTask } = useTasks();
   const { toast } = useToast();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [filter, setFilter] = useState('all');
 
-  const handleLogout = () => {
-    logout();
-    toast({
-      title: 'Signed out',
-      description: 'You have been successfully logged out.',
-    });
-    navigate('/');
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, authLoading, navigate]);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({
+        title: 'Signed out',
+        description: 'You have been successfully logged out.',
+      });
+      navigate('/');
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to sign out. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleCreateOrUpdate = async (formData, taskId) => {
@@ -101,6 +115,14 @@ const Tasks = () => {
     completed: tasks.filter((t) => t.status === 'completed').length,
   };
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -114,7 +136,7 @@ const Tasks = () => {
               <div>
                 <h1 className="text-lg font-bold text-foreground">My Tasks</h1>
                 <p className="text-xs text-muted-foreground">
-                  {isAuthenticated ? `Welcome, ${user?.name || 'User'}` : 'Demo Mode'}
+                  Welcome, {user?.user_metadata?.name || user?.email?.split('@')[0] || 'User'}
                 </p>
               </div>
             </div>
@@ -202,7 +224,12 @@ const Tasks = () => {
 
         {/* Task List */}
         <div className="space-y-4">
-          {filteredTasks.length === 0 ? (
+          {tasksLoading ? (
+            <div className="text-center py-16 animate-fade-in">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
+              <p className="text-muted-foreground mt-4">Loading tasks...</p>
+            </div>
+          ) : filteredTasks.length === 0 ? (
             <div className="text-center py-16 animate-fade-in">
               <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
                 <ListTodo className="w-8 h-8 text-muted-foreground" />
@@ -223,7 +250,7 @@ const Tasks = () => {
           ) : (
             filteredTasks.map((task) => (
               <TaskCard
-                key={task._id}
+                key={task.id}
                 task={task}
                 onEdit={handleEdit}
                 onDelete={handleDelete}

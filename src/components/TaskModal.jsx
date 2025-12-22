@@ -42,7 +42,7 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, task = null }) => {
 
     setIsSubmitting(true);
     try {
-      await onSubmit(formData, task?._id);
+      await onSubmit(formData, task?.id);
       onClose();
     } catch (error) {
       console.error('Failed to save task:', error);
