@@ -1,8 +1,8 @@
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, CheckCircle2, Shield, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { useEffect } from 'react';
 
 const Index = () => {
   const navigate = useNavigate();
