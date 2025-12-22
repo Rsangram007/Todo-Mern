@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 const corsOptions = {
   origin:
     process.env.NODE_ENV === "production"
-      ? "https://yourdomain.com"
+      ? process.env.FRONTEND_URL
       : "http://localhost:8080",
   credentials: true,
   optionsSuccessStatus: 200,
@@ -55,6 +55,7 @@ const PORT = process.env.PORT || 5000;
 
 const server = app.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+  console.log(`Frontend URL: ${process.env.FRONTEND_URL || "Not set"}`);
 });
 
 // Handle unhandled promise rejections
