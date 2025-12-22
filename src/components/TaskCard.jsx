@@ -29,7 +29,7 @@ export const TaskCard = ({ task, onEdit, onDelete, onStatusChange }) => {
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      await onDelete(task._id);
+      await onDelete(task.id);
     } catch (error) {
       setIsDeleting(false);
     }
@@ -39,7 +39,7 @@ export const TaskCard = ({ task, onEdit, onDelete, onStatusChange }) => {
     const statuses = ['pending', 'in-progress', 'completed'];
     const currentIndex = statuses.indexOf(task.status);
     const nextStatus = statuses[(currentIndex + 1) % statuses.length];
-    onStatusChange(task._id, nextStatus);
+    onStatusChange(task.id, nextStatus);
   };
 
   return (

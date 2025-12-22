@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthForm } from '@/components/AuthForm';
 import { useAuth } from '@/contexts/AuthContext';
@@ -7,8 +7,14 @@ import { useToast } from '@/hooks/use-toast';
 const Login = () => {
   const [mode, setMode] = useState('login');
   const navigate = useNavigate();
-  const { login, register } = useAuth();
+  const { login, register, isAuthenticated, isLoading } = useAuth();
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigate('/tasks');
+    }
+  }, [isAuthenticated, isLoading, navigate]);
 
   const handleSubmit = async (formData) => {
     try {
@@ -23,33 +29,37 @@ const Login = () => {
         await register(formData.name, formData.email, formData.password);
         toast({
           title: 'Account created!',
-          description: 'Please sign in with your credentials.',
-        });
-        setMode('login');
-      }
-    } catch (error) {
-      // Demo mode: simulate successful login
-      if (mode === 'login') {
-        localStorage.setItem('token', 'demo-token');
-        localStorage.setItem('user', JSON.stringify({ 
-          name: 'Demo User', 
-          email: formData.email 
-        }));
-        toast({
-          title: 'Demo Mode',
-          description: 'Logged in with demo credentials.',
+          description: 'You have been signed in automatically.',
         });
         navigate('/tasks');
-        window.location.reload();
-      } else {
-        toast({
-          title: 'Demo Mode',
-          description: 'Account created! Please sign in.',
-        });
-        setMode('login');
       }
+    } catch (error) {
+      let message = error.message || 'Something went wrong.';
+      
+      if (message.includes('Invalid login credentials')) {
+        message = 'Invalid email or password. Please try again.';
+      } else if (message.includes('User already registered')) {
+        message = 'An account with this email already exists. Please sign in.';
+      } else if (message.includes('Password should be')) {
+        message = 'Password must be at least 6 characters.';
+      }
+      
+      toast({
+        title: 'Error',
+        description: message,
+        variant: 'destructive',
+      });
+      throw error;
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

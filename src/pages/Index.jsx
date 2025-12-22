@@ -23,7 +23,7 @@ const Index = () => {
     {
       icon: Shield,
       title: 'Secure Authentication',
-      description: 'JWT-based authentication keeps your data safe',
+      description: 'Your data is protected with secure authentication',
     },
     {
       icon: Zap,
@@ -43,7 +43,7 @@ const Index = () => {
           <div className="text-center animate-slide-up">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent border border-border mb-8">
               <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
-              <span className="text-sm font-medium text-accent-foreground">MERN Stack Todo App</span>
+              <span className="text-sm font-medium text-accent-foreground">Full-Stack Todo App</span>
             </div>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
@@ -53,8 +53,8 @@ const Index = () => {
             </h1>
             
             <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
-              A full-stack todo application built with MongoDB, Express, React, and Node.js.
-              Secure authentication and intuitive task management.
+              A full-stack todo application with secure authentication and real-time data persistence.
+              Your tasks, always in sync.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -66,13 +66,6 @@ const Index = () => {
               >
                 Get Started
                 <ArrowRight className="w-5 h-5" />
-              </Button>
-              <Button
-                variant="outline"
-                size="xl"
-                onClick={() => navigate('/tasks')}
-              >
-                Try Demo
               </Button>
             </div>
           </div>
@@ -120,11 +113,11 @@ const Index = () => {
             Tech Stack
           </h2>
           <p className="text-muted-foreground mb-10">
-            Built with the MERN stack for optimal performance
+            Built with powerful technologies for optimal performance
           </p>
           
           <div className="flex flex-wrap justify-center gap-4">
-            {['MongoDB', 'Express.js', 'React', 'Node.js', 'JWT', 'Tailwind CSS'].map((tech) => (
+            {['React', 'TypeScript', 'Tailwind CSS', 'PostgreSQL', 'Authentication', 'Real-time Sync'].map((tech) => (
               <span
                 key={tech}
                 className="px-5 py-2.5 rounded-full bg-accent text-accent-foreground font-medium text-sm border border-border"
@@ -140,7 +133,7 @@ const Index = () => {
       <footer className="py-8 border-t border-border">
         <div className="container max-w-5xl mx-auto px-4 text-center">
           <p className="text-sm text-muted-foreground">
-            Todo App — MERN Stack Assignment
+            Todo App — Full-Stack Assignment
           </p>
         </div>
       </footer>
