@@ -53,8 +53,9 @@ Todo-Mern/
 
 3. Configure environment variables:
 
-   - Copy `config/config.env.example` to `config/config.env`
-   - Update the values according to your environment
+   - For local development: Use `config/config.local.env` as reference and update values according to your local environment
+   - For production: Use `config/config.prod.env` as reference and update values according to your production environment
+   - The application will automatically load the correct environment file based on the NODE_ENV setting
 
 4. Start the server:
    ```bash
@@ -77,8 +78,9 @@ Todo-Mern/
 
 3. Configure environment variables:
 
-   - Create a `.env` file in the root of the frontend directory
-   - Add your environment variables
+   - For development: Use `.env.development` as reference
+   - For production: Use `.env.production` as reference
+   - The application will automatically load the correct environment file based on the mode setting
 
 4. Start the development server:
    ```bash
@@ -89,15 +91,22 @@ Todo-Mern/
 
 ### Backend
 
-- `npm run dev` - Start development server with nodemon
-- `npm start` - Start production server
+- `npm run dev` - Start development server with nodemon (uses local environment)
+- `npm run dev:local` - Start development server with nodemon (explicitly uses local environment)
+- `npm run prod` - Start production server (uses production environment)
+- `npm start` - Start production server (default Node.js script)
 - `npm test` - Run tests
 
 ### Frontend
 
-- `npm run dev` - Start development server
+- `npm run dev` - Start development server (uses development environment)
+- `npm run dev:local` - Start development server (explicitly uses development environment)
 - `npm run build` - Build for production
+- `npm run build:dev` - Build for development environment
+- `npm run build:prod` - Build for production environment
 - `npm run preview` - Preview production build
+- `npm run preview:dev` - Preview development build
+- `npm run preview:prod` - Preview production build
 
 ## API Endpoints
 
@@ -115,11 +124,26 @@ Todo-Mern/
 
 ## Environment Variables
 
-### Backend (.env)
+### Backend
 
+The backend now supports separate environment configurations:
+
+- Local development: `config/config.local.env`
+- Production: `config/config.prod.env`
+
+The application automatically loads the appropriate environment file based on the NODE_ENV setting:
+
+- When NODE_ENV=development, it loads `config/config.local.env`
+- When NODE_ENV=production, it loads `config/config.prod.env`
+
+Available environment variables:
+
+- `NODE_ENV` - Environment mode (development/production)
 - `PORT` - Server port (default: 5000)
 - `MONGO_URI` - MongoDB connection string
 - `JWT_SECRET` - Secret for JWT token signing
+- `JWT_EXPIRE` - JWT token expiration time
+- `FRONTEND_URL` - Frontend application URL for CORS configuration
 
 ### Frontend (.env)
 
@@ -127,10 +151,15 @@ Todo-Mern/
 
 #### Environment-Specific Configuration
 
-The application is configured to work both locally and in production:
+The frontend now supports separate environment configurations:
 
-- For local development: Create a `.env.local` file with `VITE_API_BASE_URL=http://localhost:5000/api/v1`
-- For production deployment: The `.env` file is configured with `VITE_API_BASE_URL=https://todo-mern-qxwq.onrender.com`
+- Development: `.env.development`
+- Production: `.env.production`
+
+The application automatically loads the appropriate environment file based on the mode setting:
+
+- When mode=development, it loads `.env.development`
+- When mode=production, it loads `.env.production`
 
 This setup allows the frontend to connect to the appropriate backend depending on the environment.
 

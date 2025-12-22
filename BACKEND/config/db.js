@@ -7,7 +7,16 @@ const connectDB = async () => {
       useUnifiedTopology: true,
     });
 
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    // Show different message based on environment
+    if (process.env.NODE_ENV === "production") {
+      console.log(
+        `MongoDB Connected to PRODUCTION database: ${conn.connection.host}`
+      );
+    } else {
+      console.log(
+        `MongoDB Connected to LOCAL database: ${conn.connection.host}`
+      );
+    }
   } catch (error) {
     console.error(`Error: ${error.message}`);
     process.exit(1);

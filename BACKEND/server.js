@@ -3,8 +3,13 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 
-// Load env vars
-dotenv.config({ path: "./config/config.env" });
+// Load env vars based on environment
+const envFile =
+  process.env.NODE_ENV === "production"
+    ? "./config/config.prod.env"
+    : "./config/config.local.env";
+
+dotenv.config({ path: envFile });
 
 // Connect to database
 connectDB();
