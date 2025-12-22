@@ -17,9 +17,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cors("*"));
 
-// Handle preflight requests explicitly
-app.options("*", cors(corsOptions));
-
 // Routes
 app.use("/api/v1/auth", require("./routes/auth"));
 app.use("/api/v1/tasks", require("./routes/tasks"));
