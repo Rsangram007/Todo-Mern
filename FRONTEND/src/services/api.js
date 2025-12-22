@@ -1,14 +1,6 @@
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";
 
-// Log which environment is being used
-if (import.meta.env.MODE === "production") {
-  console.log(`Frontend API connecting to PRODUCTION backend: ${API_BASE_URL}`);
-} else {
-  console.log(
-    `Frontend API connecting to DEVELOPMENT backend: ${API_BASE_URL}`
-  );
-}
 
 class ApiClient {
   constructor() {
