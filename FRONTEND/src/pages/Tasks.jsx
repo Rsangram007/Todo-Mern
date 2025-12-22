@@ -150,10 +150,8 @@ const Tasks = () => {
               <div>
                 <h1 className='text-lg font-bold text-foreground'>My Tasks</h1>
                 <p className='text-xs text-muted-foreground'>
-                  Welcome,{" "}
-                  {user?.user_metadata?.name ||
-                    user?.email?.split("@")[0] ||
-                    "User"}
+                  Welcome,{}
+                  {user?.name || user?.email?.split("@")[0] || "User"}
                 </p>
               </div>
             </div>
@@ -281,7 +279,7 @@ const Tasks = () => {
           ) : (
             filteredTasks.map((task) => (
               <TaskCard
-                key={task.id}
+                key={task._id}
                 task={task}
                 onEdit={handleEdit}
                 onDelete={handleDelete}

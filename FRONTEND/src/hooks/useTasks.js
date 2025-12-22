@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { api } from '@/services/api';
 import { useAuth } from '@/contexts/AuthContext';
 
 export const useTasks = () => {
@@ -18,17 +18,11 @@ export const useTasks = () => {
     setError(null);
 
     try {
-      const { data, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setTasks(data || []);
+      const data = await api.getTasks();
+      setTasks(data.data || []);
     } catch (err) {
       console.error('Error fetching tasks:', err);
-      setError(err.message);
+      setError(err.message || 'Failed to fetch tasks');
       setTasks([]);
     } finally {
       setIsLoading(false);
@@ -38,49 +32,36 @@ export const useTasks = () => {
   const createTask = async (taskData) => {
     if (!user) throw new Error('Must be logged in to create tasks');
 
-    const { data, error } = await supabase
-      .from('tasks')
-      .insert({
-        title: taskData.title,
-        description: taskData.description || null,
-        status: taskData.status || 'pending',
-        user_id: user.id,
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    setTasks((prev) => [data, ...prev]);
-    return data;
+    try {
+      const response = await api.createTask(taskData);
+      const newTask = response.data;
+      setTasks((prev) => [newTask, ...prev]);
+      return newTask;
+    } catch (error) {
+      throw error;
+    }
   };
 
   const updateTask = async (id, taskData) => {
-    const { data, error } = await supabase
-      .from('tasks')
-      .update({
-        title: taskData.title,
-        description: taskData.description,
-        status: taskData.status,
-      })
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    setTasks((prev) =>
-      prev.map((task) => (task.id === id ? data : task))
-    );
-    return data;
+    try {
+      const response = await api.updateTask(id, taskData);
+      const updatedTask = response.data;
+      setTasks((prev) =>
+        prev.map((task) => (task._id === id ? updatedTask : task))
+      );
+      return updatedTask;
+    } catch (error) {
+      throw error;
+    }
   };
 
   const deleteTask = async (id) => {
-    const { error } = await supabase
-      .from('tasks')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
-    setTasks((prev) => prev.filter((task) => task.id !== id));
+    try {
+      await api.deleteTask(id);
+      setTasks((prev) => prev.filter((task) => task._id !== id));
+    } catch (error) {
+      throw error;
+    }
   };
 
   useEffect(() => {

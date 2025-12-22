@@ -9,6 +9,9 @@ class ApiClient {
   async request(endpoint, options = {}) {
     const url = `${this.baseUrl}${endpoint}`;
 
+    // Get token from localStorage
+    const token = localStorage.getItem("token");
+
     const config = {
       headers: {
         "Content-Type": "application/json",
@@ -16,6 +19,11 @@ class ApiClient {
       credentials: "include", // Include cookies in requests
       ...options,
     };
+
+    // Add Authorization header if token exists
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
 
     if (options.body && typeof options.body === "object") {
       config.body = JSON.stringify(options.body);
@@ -54,9 +62,9 @@ class ApiClient {
   }
 
   async logout() {
-    return await this.request("/auth/logout", {
-      method: "GET",
-    });
+    // No API call needed for logout since we handle it client-side
+    // The actual logout is handled in AuthContext
+    return Promise.resolve({ success: true });
   }
 
   // Task endpoints
