@@ -124,6 +124,8 @@ Todo-Mern/
 
 ## Environment Variables
 
+A sample `.env` file has been provided in the root directory as a template for required environment variables. Copy and modify this file to create your own `.env` file.
+
 ### Backend
 
 The backend now supports separate environment configurations:
